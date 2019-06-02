@@ -37,6 +37,7 @@ from Ingest import appcompat_raw_hive
 from Ingest import appcompat_miracquisition
 from Ingest import amcache_raw_hive
 from Ingest import appcompat_mirShimShady_v1
+from Ingest import amcache_thor
 import json
 
 try:
@@ -57,7 +58,8 @@ supported_ingest_plugins = ['issues_document.Issues_document', 'appcompat_hxregi
                             'appcompat_mirregistryaudit.Appcompat_mirregistryaudit', 'amcache_mirlua_v1.Amcache_mirlua_v1',
                             'appcompat_mirlua_v2.Appcompat_mirlua_v2', 'appcompat_csv.Appcompat_csv',
                             'appcompat_redline.Appcompat_redline', 'appcompat_raw_hive.Appcompat_Raw_hive',
-                            'appcompat_miracquisition.Appcompat_miracquisition', 'amcache_raw_hive.Amcache_Raw_hive']
+                            'appcompat_miracquisition.Appcompat_miracquisition', 'amcache_raw_hive.Amcache_Raw_hive',
+                            'amcache_thor.Appcompat_THOR']
 
 # Load IngestTypes
 ingest_plugins = {}
