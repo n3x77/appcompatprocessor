@@ -54,15 +54,17 @@ class Appcompat_THOR(Ingest):
         for r in rows:
             m = r_amcacheTHOR.match(r)
             if m:
+                
                 namedrow = settings.EntriesFields(HostID=hostID, EntryType=settings.__APPCOMPAT__, RowNumber=rowNumber,
-                FirstRun = m.group('FIRST_RUN'), Created= m.group('CREATED'),
-                FilePath = m.group('FILE'),
-                FileName = m.group('FILE'),
-                SHA1 = m.group('SHA1'),
-                Size = m.group('SIZE'),
-                Product = m.group('PRODUCT'),
-                Company = m.group('COMPANY'),
-                FileDescription = m.group('DESC'),
+                FirstRun = unicode(m.group('FIRST_RUN')), 
+                Created= unicode(m.group('CREATED')),
+                FilePath = unicode(m.group('FILE').rsplit('\\', 1)[0]),
+                FileName = unicode(m.group('FILE').rsplit('\\', 1)[1]),
+                SHA1 = unicode(m.group('SHA1')),
+                Size = unicode(m.group('SIZE')),
+                Product = unicode(m.group('PRODUCT')),
+                Company = unicode(m.group('COMPANY')),
+                FileDescription = unicode(m.group('DESC')),
                 InstanceID=instanceID)
                 
                 rowsData.append(namedrow)
