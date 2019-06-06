@@ -53,7 +53,6 @@ class Appcompat_THOR(Ingest):
         file_object = loadFile(file_fullpath)
         rows = file_object.read().splitlines()[1:]
         file_object.close()
-        # r_amcacheTHOR = re.compile(r".*MODULE: (Amcache) MESSAGE: (\S+) (.*)entry (FILE:|(.*) FILE:) (?P<FILE>.*) SHA1: (?P<SHA1>\w+) SIZE: (?P<SIZE>(None|\d)) DESC: (?P<DESC>.*) FIRST_RUN: (?P<FIRSTRUN>.*) CREATED: (?P<CREATED>.*) PRODUCT: (?P<PRODUCT>.*) COMPANY: (?P<COMPANY>.*)")
         r_appcompatTHOR = re.compile(r".*MODULE: SHIMCache MESSAGE: (\S+) (.*)entry (FILE:|(.*) FILE:) (?P<FILE>.*) DATE: (?P<DATE>.*) TYPE: (?P<TYPE>.*) HIVEFILE: (?P<HIVE>.*) EXTRAS: (?P<EXTRAS>.*) (?P<EXEC>True|False) MD5: (?P<MD5>.*) (?P<SHA1>.*) (?P<SHA256>.*)")
         del file_object
 
@@ -61,15 +60,12 @@ class Appcompat_THOR(Ingest):
         for r in rows:
             m = r_appcompatTHOR.match(r)
             if m:
-                logger.info("MATCH %s" % r) 
                 try:
 
                     # Convert to timestmaps:
                     if m.group('DATE') != 'N/A':
                         tmp_date = datetime.strptime(m.group('DATE'), "%Y-%m-%d %H:%M:%S")
-                        logger.info("DATE: %s" % tmp_date)
                     else:
-                        logger.info("DATE broken: %s" % m.group('DATE'))
                         tmp_date = minSQLiteDTS
 
                 except Exception as e:
@@ -78,7 +74,6 @@ class Appcompat_THOR(Ingest):
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                     logger.info("Exception processing row (%s): %s [%s / %s / %s]" % (
                     e.message, unicode(ntpath.split(m.group('FILE'))[0]), exc_type, fname, exc_tb.tb_lineno))
-                    # e.message, unicode(ntpath.split(m.group('FILE'))[0]), exc_type, fname, exc_tb.tb_lineno))
 
 
                 path, filename = ntpath.split(m.group('FILE'))
@@ -95,5 +90,3 @@ class Appcompat_THOR(Ingest):
 
                 rowsData.append(namedrow)
                 rowNumber += 1
-
-        logger.info("PARSED ROWS: %s" % len(rowsData))
