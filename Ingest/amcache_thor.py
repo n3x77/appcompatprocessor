@@ -58,22 +58,18 @@ class Amcache_THOR(Ingest):
 
         assert (rows is not None)
         for r in rows:
-            m = r_appcompatTHOR.match(r)
+            m = r_amcacheTHOR.match(r)
             if m:
                 try:
                     # Convert to timestmaps:
                     if m.group('FIRSTRUN') != '0001-01-01 00:00:00':
                         tmp_firstrun = datetime.strptime(m.group('FIRSTRUN'), "%Y-%m-%d %H:%M:%S.%f")
-                        logger.info("FIRSTUN: %s" % tmp_firstrun)
                     else:
-                        logger.info("FIRSTRUN BROKEN: %s" % m.group('FIRSTRUN'))
                         tmp_firstrun = minSQLiteDTS
 
                     if m.group('CREATED') != '0001-01-01 00:00:00':
                         tmp_created = datetime.strptime(m.group('CREATED'), "%Y-%m-%d %H:%M:%S.%f")
-                        logger.info("CREATED" % tmp_created)
                     else:
-                        logger.info("CREATED BROKEN: %s" % m.group('CREATED'))
                         tmp_created = minSQLiteDTS
 
                 except Exception as e:
@@ -89,15 +85,17 @@ class Amcache_THOR(Ingest):
                 EntryType=settings.__AMCACHE__,
                 RowNumber=rowNumber,
                 FilePath=unicode(path),
-                File=unicode(file),
+                FileName=unicode(file),
                 Size=unicode(m.group('SIZE')),
                 SHA1=unicode(m.group('SHA1')),
-                FilesDescription=m.group('DESC'),
+                # FilesDescription=unicode(m.group('DESC')),
                 FirstRun=tmp_firstrun,
                 Created=tmp_created,
                 Product=unicode(m.group('PRODUCT')),
                 Company=unicode(m.group('COMPANY')),
-                )
+                InstanceID=instanceID)
 
                 rowsData.append(namedrow)
                 rowNumber += 1
+
+        logger.info("AMACHE PARSED: %s" % len(rowsData))
