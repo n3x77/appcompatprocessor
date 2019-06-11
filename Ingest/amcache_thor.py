@@ -6,6 +6,7 @@ from appAux import loadFile
 from datetime import datetime
 import ntpath
 import sys 
+import hashlib
 import os 
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,14 @@ class Amcache_THOR(Ingest):
         #TODO: Implement
         logger.error("Method not implemented")
         return True
+    
+    # def calculateID(self, file_name_fullpath):
+    #     instanceID = None
+    #     content_file = loadFile(file_name_fullpath)
+    #     content = content_file.read()
+    #     content_file.close()
+    #     instanceID = hashlib.md5(content+'amcache').hexdigest()
+    #     return instanceID
     
     def getHostName(self, file_name_fullpath):
         # Reads the THOR/SPARK reports and extracts the hostname
@@ -93,6 +102,11 @@ class Amcache_THOR(Ingest):
                 Created=tmp_created,
                 Product=unicode(m.group('PRODUCT')),
                 Company=unicode(m.group('COMPANY')),
+                # Since THOR does not parse the following Amcache Fields we 
+                # will set them to minSqLiteDTS
+                Modified1=minSQLiteDTS,
+                Modified2=minSQLiteDTS,
+                LinkerTS=minSQLiteDTS,
                 InstanceID=instanceID)
 
                 rowsData.append(namedrow)

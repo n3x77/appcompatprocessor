@@ -61,6 +61,7 @@ supported_ingest_plugins = ['issues_document.Issues_document', 'appcompat_hxregi
                             'appcompat_redline.Appcompat_redline', 'appcompat_raw_hive.Appcompat_Raw_hive',
                             'appcompat_miracquisition.Appcompat_miracquisition', 'amcache_raw_hive.Amcache_Raw_hive',
                             'appcompat_thor.Appcompat_THOR', 'amcache_thor.Amcache_THOR']
+                            # 'amcache_thor.Amcache_THOR']
 
 # Load IngestTypes
 ingest_plugins = {}

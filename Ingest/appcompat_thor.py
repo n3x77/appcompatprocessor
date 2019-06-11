@@ -7,6 +7,7 @@ from datetime import datetime
 import ntpath
 import sys 
 import os 
+import hashlib
 
 logger = logging.getLogger(__name__)
 # Module to ingest entries from the appcombat module of the APT-Scanner THOR and SPARK.
@@ -24,6 +25,16 @@ class Appcompat_THOR(Ingest):
         #TODO: Implement
         logger.error("Method not implemented")
         return True
+    
+    # def calculateID(self, file_name_fullpath):
+    #     instanceID = None
+    #     content_file = loadFile(file_name_fullpath)
+    #     content = content_file.read()
+    #     content_file.close()
+    #     # we must manipulate the md5 hash so that one thor report will be
+    #     # parsed by the appcompath_thor ingest module and the amcache_thor module
+    #     instanceID = hashlib.md5(content+'shimcache').hexdigest()
+    #     return instanceID
     
     def getHostName(self, file_name_fullpath):
         # Reads the THOR/SPARK reports and extracts the hostname
