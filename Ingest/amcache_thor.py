@@ -85,7 +85,7 @@ class Amcache_THOR(Ingest):
                 EntryType=settings.__AMCACHE__,
                 RowNumber=rowNumber,
                 FilePath=unicode(path),
-                FileName=unicode(file),
+                FileName=unicode(filename),
                 Size=unicode(m.group('SIZE')),
                 SHA1=unicode(m.group('SHA1')),
                 # FilesDescription=unicode(m.group('DESC')),
