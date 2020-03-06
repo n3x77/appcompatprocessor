@@ -60,6 +60,7 @@ class THOR10(Ingest):
 
 
     def processAppcompatCache(self, file_fullpath, hostID, instanceID, rowsData):
+        logger.info("Process AppcompatCache %s %s %s " % (file_fullpath, hostID, instanceID))
         rowNumber = 0
         minSQLiteDTS = datetime(1, 1, 1, 0 ,0 ,0)
         maxSQLiteDTS = datetime(9999, 12, 31, 0, 0, 0)
@@ -69,18 +70,16 @@ class THOR10(Ingest):
         file_object.close()
         del file_object
 
-        r_appcompatTHOR = re.compile(r".*MODULE: SHIMCache MESSAGE: (\S+) (.*)entry (FILE:|(.*) FILE:) (?P<FILE>.*) DATE: (?P<DATE>.*) TYPE: (?P<TYPE>.*) HIVEFILE: (?P<HIVE>.*) EXTRAS: (?P<EXTRAS>.*) (?P<EXEC>True|False) MD5: (?P<MD5>.*) (?P<SHA1>.*) (?P<SHA256>.*)")
-        r_appcompatTHOR10 = re.compile(r"..*MODULE: SHIMCache MESSAGE: (\S+) (.*)Entry (.*) (FILE:|(.*) FILE:) (?P<FILE>.*) TIMESTAMP: (?P<TIMESTAMP>.*) EXEC_FLAG: (true|false) HIVE: (?P<HIVE>.*) PATH: (?P<PATH>.*)")
+        r_appcompatTHOR10 = re.compile("[\w\s\.\:\/]+ (?P<SCANNER>THOR|SPARK): Info: MODULE: SHIMCache MESSAGE: (\S+) Entry SCANID: (\S+) FILE: (?P<FILE>.*) TIMESTAMP: (?P<TIMESTAMP>.*) EXEC_FLAG: (?P<EXEC_FLAG>false|true) HIVE: (?P<HIVE>.*) PATH: (?P<PATH>.*)")
 
         assert (rows is not None)
         for r in rows:
-            m = r_appcompatTHOR.match(r)
-            m10 = r_appcompatTHOR10.match(r)
+            m = r_appcompatTHOR10.match(r)
             if m:
                 try:
                     # Convert to timestmaps:
-                    if m.group('DATE') != 'N/A':
-                        tmp_date = datetime.strptime(m.group('DATE'), "%Y-%m-%d %H:%M:%S")
+                    if m.group('TIMESTAMP') != 'N/A':
+                        tmp_date = datetime.strptime(m.group('TIMESTAMP'), "%a %b %d %H:%M:%S %Y")
                     else:
                         tmp_date = minSQLiteDTS
 
@@ -99,17 +98,12 @@ class THOR10(Ingest):
                 LastUpdate = tmp_date,
                 FilePath = unicode(path),
                 FileName = unicode(filename),
-                ExecFlag=str(m.group('EXEC')),
-                SHA1 = unicode(m.group('SHA1')),
+                ExecFlag=str(m.group('EXEC_FLAG')),
+                SHA1 = None,
                 InstanceID=instanceID)
 
                 rowsData.append(namedrow)
                 rowNumber += 1
-
-
-            if m10:
-                print "Parsed"
-                print m.group('FILE')
 
         logger.info("Parsed AppcompatCache entries: %s" % len(rowsData))
 
