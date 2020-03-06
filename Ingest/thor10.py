@@ -26,18 +26,17 @@ class THOR10(Ingest):
         file_object = loadFile(file_name_fullpath)
         rows = file_object.read().splitlines()
         file_object.close()
-        r_thor_version = re.compile(r"[\w\s\.\:\/]+ (?P<SCANNER>THOR|SPARK): Info: MODULE: Startup MESSAGE: Thor Version: (?P<VERSION>[\d\.]+) SCANID: (?P<SCAN_ID>S-[a-zA-Z0-9]+)")
+        r_thor_version = re.compile(r"[\w\s\.\:\/\-\_]+ (?P<SCANNER>THOR|SPARK): Info: MODULE: Startup MESSAGE: Thor Version: (?P<VERSION>[\d\.]+) SCANID: (?P<SCAN_ID>S-[a-zA-Z0-9]+)")
         assert (rows is not None)
         for r in rows:
-            print("ROW %s" % r)
             m = r_thor_version.match(r)
             if m:
-                logger.debug("SCANNER: %s" % m.group("SCANNER").upper())
-                logger.debug("VERSION: %s" % m.group("VERSION").upper())
-                logger.debug("SCANID: %s" % m.group("SCAN_ID").upper())
+                logger.info("SCANNER: %s" % m.group("SCANNER").upper())
+                logger.info("VERSION: %s" % m.group("VERSION").upper())
+                logger.info("SCANID: %s" % m.group("SCAN_ID").upper())
                 return True
             else:
-                logger.error("No THOR 10 Scan")
+                logger.error("No THOR 10 Scan file.")
                 return False
 
     def getHostName(self, file_name_fullpath):
@@ -115,18 +114,17 @@ class THOR10(Ingest):
         logger.info("Parsed AppcompatCache entries: %s" % len(rowsData))
 
     def processAmcache(self, file_fullpath, hostID, instanceID, rowsData):
+        logger.info("Process Amcache %s %s %s %s" % (file_fullpath, hostID, instanceID, rowsData))
         rowNumber = 0
         minSQLiteDTS = datetime(1, 1, 1, 0 ,0 ,0)
         maxSQLiteDTS = datetime(9999, 12, 31, 0, 0, 0)
-
-        logger.info("FILE: %s" % file_fullpath)
 
         file_object = loadFile(file_fullpath)
         rows = file_object.read().splitlines()[1:]
         file_object.close()
         del file_object
 
-        r_amcacheTHOR = re.compile(r".*MODULE: (Amcache) MESSAGE: (\S+) (.*)entry (FILE:|(.*) FILE:) (?P<FILE>.*) SHA1: (?P<SHA1>\w+) SIZE: (?P<SIZE>(None|\d)) DESC: (?P<DESC>.*) FIRST_RUN: (?P<FIRSTRUN>.*) CREATED: (?P<CREATED>.*) PRODUCT: (?P<PRODUCT>.*) COMPANY: (?P<COMPANY>.*)")
+        r_amcacheTHOR = re.compile("[\w\s\.\:\/]+ (?P<SCANNER>THOR|SPARK): Info: MODULE: Amcache MESSAGE: (\S+) entry SCANID: (\S+) FILE: (?P<FILE>.*) SHA1: (?P<SHA1>.*) SIZE: (?P<SIZE>.*) DESCRIPTION: (?P<DESCRIPTION>.*) FIRST_RUN: (?P<FIRSTRUN>.*) CREATED: (?P<CREATED>.*) PRODUCT: (?P<PRODUCT>.*) COMPANY: (?P<COMPANY>.*)")
 
         assert (rows is not None)
         for r in rows:
@@ -135,12 +133,12 @@ class THOR10(Ingest):
                 try:
                     # Convert to timestmaps:
                     if m.group('FIRSTRUN') != '0001-01-01 00:00:00':
-                        tmp_firstrun = datetime.strptime(m.group('FIRSTRUN'), "%Y-%m-%d %H:%M:%S.%f")
+                        tmp_firstrun = datetime.strptime(m.group('FIRSTRUN'), "%a %b %d %H:%M:%S %Y")
                     else:
                         tmp_firstrun = minSQLiteDTS
 
                     if m.group('CREATED') != '0001-01-01 00:00:00':
-                        tmp_created = datetime.strptime(m.group('CREATED'), "%Y-%m-%d %H:%M:%S.%f")
+                        tmp_created = datetime.strptime(m.group('CREATED'), "%a %b %d %H:%M:%S %Y")
                     else:
                         tmp_created = minSQLiteDTS
 
@@ -160,7 +158,7 @@ class THOR10(Ingest):
                 FileName=unicode(filename),
                 Size=unicode(m.group('SIZE')),
                 SHA1=unicode(m.group('SHA1')),
-                # FilesDescription=unicode(m.group('DESC')),
+                # FilesDescription=unicode(m.group('DESCRIPTION')),
                 FirstRun=tmp_firstrun,
                 Created=tmp_created,
                 Product=unicode(m.group('PRODUCT')),
@@ -178,14 +176,12 @@ class THOR10(Ingest):
         logger.info("Parsed Amcache entries: %s" % len(rowsData))
 
     def processFile(self, file_fullpath, hostID, instanceID, rowsData):
-        
+
         # Parse the Amcache entries of the THOR/SPARK report file (MODULE: Amcache)
-    
+
         self.processAmcache(file_fullpath, hostID, instanceID, rowsData)
-        
+
         # Parse the Appcompatcache / SHIMCache of the THOR/SPARK report file (MODULE: SHIMCache)
         self.processAppcompatCache(file_fullpath, hostID, instanceID, rowsData)
         logger.info("THOR: Successful")
 
-
-    
